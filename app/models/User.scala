@@ -23,12 +23,12 @@ object UserForm {
   )
 }
 
-class UserTableDef(tag: Tag) extends Table[User](tag, "T_USERS2") {
+class UserTableDef(tag: Tag) extends Table[User](tag, "t_users2") {
 
-  def id = column[Long]("USER_ID", O.PrimaryKey, O.AutoInc)
-  def name = column[String]("USER_NAME")
-  def balance = column[Int]("USER_BALANCE")
-  def email = column[String]("USER_EMAIL")
+  def id = column[Long]("user_id", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("user_name")
+  def balance = column[Int]("user_balance")
+  def email = column[String]("user_email")
 
   override def * = (id, name, balance, email) <> (User.tupled, User.unapply)
 }
