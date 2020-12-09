@@ -1,24 +1,42 @@
 package controllers
 
+import actors.PaymentReader.Start
+import akka.actor.{ActorRef, ActorSystem}
+import akka.pattern.ask
+import akka.util.Timeout
+
 import javax.inject._
 import play.api._
 import play.api.mvc._
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
-@Singleton
-class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+import java.nio.file.Paths
+import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.duration.DurationInt
 
-  /**
-   * Create an Action to render an HTML page.
-   *
-   * The configuration in the `routes` file means that this method
-   * will be called when the application receives a `GET` request with
-   * a path of `/`.
-   */
+@Singleton
+class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef, cc: ControllerComponents)
+                              (implicit system: ActorSystem, ec: ExecutionContext)
+  extends AbstractController(cc) {
+
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
+    Ok(views.html.index(Nil))
+  }
+
+  def upload = Action(parse.multipartFormData) {implicit request =>
+      val duration = 5.seconds
+      implicit val timeout: Timeout = Timeout(duration.length, duration.unit)
+      request.body
+      .file("textfile")
+      .map { uploadedFile =>
+        val path = uploadedFile.ref.path
+
+        val future = paymentReader.ask(Start(path, system)).mapTo[Seq[String]]
+        Await.result(future, duration)
+        Ok(future.value.get.getOrElse(Nil).mkString("\n"))
+//        Ok(views.html.index(Nil))
+      }
+      .getOrElse {
+        Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")
+      }
   }
 }

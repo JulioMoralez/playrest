@@ -1,5 +1,24 @@
-@()
+@(messages: Seq[String])(implicit request: RequestHeader, flash: Flash)
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@main("index") {
+  <h1>Welcome</h1>
+  @helper.form(action = routes.HomeController.upload, Symbol("enctype") -> "multipart/form-data") {
+
+    <input type="file" name="textfile">
+
+    <p>
+      <input type="submit" value="Выполнить">
+    </p>
+
+  }
+  <ul>
+  @for((message, i) <- messages.zipWithIndex) {
+    <li>@message</li>
+    @*        <form method="post" action="removeTask">*@
+    @*            @helper.CSRF.formField*@
+    @*        <input type="hidden" name="index" value="@i"/>*@
+    @*        <input type="submit" value="remove"/>*@
+    @*        </form>*@
+  }
+  </ul>
 }
