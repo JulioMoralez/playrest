@@ -4,25 +4,23 @@ import actors.PaymentReader.Start
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
-
-import javax.inject._
-import play.api._
+import play.api.libs.Files
 import play.api.mvc._
 
-import java.nio.file.Paths
-import scala.concurrent.{Await, ExecutionContext}
+import javax.inject._
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext}
 
 @Singleton
 class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef, cc: ControllerComponents)
                               (implicit system: ActorSystem, ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  def index() = Action { implicit request: Request[AnyContent] =>
+  def index(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index(Nil))
   }
 
-  def upload = Action(parse.multipartFormData) {implicit request =>
+  def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { implicit request =>
       val duration = 5.seconds
       implicit val timeout: Timeout = Timeout(duration.length, duration.unit)
       request.body
