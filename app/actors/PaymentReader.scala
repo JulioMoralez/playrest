@@ -12,6 +12,7 @@ import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import javax.inject._
+import scala.util.Try
 
 object PaymentReader extends Serializable {
   final case class Start(path: Path, system: ActorSystem)
@@ -26,20 +27,38 @@ object PaymentReader extends Serializable {
 
 
   def checkTransaction(transaction: String): Transaction = {
+
 //    val paymentRegex = "([A-Za-z0-9]+) (->) ([A-Za-z0-9]+) (:) ([0-9]+)"
-    val paymentRegex = "([0-9]+)"
-    val regex = paymentRegex.r()
-    transaction match {
+//    val regex = paymentRegex.r()
+//    transaction match {
 //      case regex(from, _, to, _, value) =>
-      case regex(x) =>
-        //GoodTransaction(from, to, value.toInt)
-        println("good")
-        println(x)
-        BadTransaction(transaction)
-      case _ =>
-        println("eroor")
-        BadTransaction(transaction)
+//        GoodTransaction(from, to, value.toInt)
+//      case _ =>
+//        BadTransaction(transaction)
+//    }
+
+    // не работает на heroku regex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    val regex = "[A-Za-z0-9]+"
+    val fromIndex = transaction.indexOf("->")
+    if (fromIndex > 0) {
+      val from = transaction.substring(0, fromIndex).trim
+      if (from.matches(regex)) {
+        val s1 = transaction.substring(fromIndex + 2, transaction.length).trim
+        val toIndex = s1.indexOf(":")
+        if (toIndex > 0) {
+          val to = s1.substring(0, toIndex).trim
+          if (to.matches(regex)) {
+            val s2 = s1.substring(toIndex + 1, s1.length).trim
+            val value = Try(s2.toInt).getOrElse(-1)
+            if (value > 0) {
+              return GoodTransaction(from, to, value)
+            }
+          }
+        }
+      }
     }
+    BadTransaction(transaction)
   }
 }
 
