@@ -1,11 +1,26 @@
-@(messages: Seq[String])(implicit request: RequestHeader, flash: Flash)
+@(messages: Seq[String], infoMessage: String, errorMessage: String)(implicit request: RequestHeader, flash: Flash)
 
 @main("index") {
-  <h1>Welcome</h1>
+  <div class="mx-3">
+    <div class="form-row mt-3">
+      <div class="col">
+        <h1>Добро пожаловать</h1>
+      </div>
+      <div class="col">
+        <form method="post" action="users">
+          @helper.CSRF.formField
+          <input type="hidden" name="message" value=""/>
+          <input type="submit" class="btn btn-primary" value="Список пользователей" />
+        </form>
+      </div>
+    </div>
+
+
+<br>
+
   @helper.form(action = routes.HomeController.upload, Symbol("enctype") -> "multipart/form-data") {
-
+    <h4>Выбрать файл с платежами</h4>
     <input type="file" name="textfile">
-
     <p>
       <input type="submit" value="Выполнить">
     </p>
@@ -14,11 +29,17 @@
   <ul>
   @for((message, i) <- messages.zipWithIndex) {
     <li>@message</li>
-    @*        <form method="post" action="removeTask">*@
-    @*            @helper.CSRF.formField*@
-    @*        <input type="hidden" name="index" value="@i"/>*@
-    @*        <input type="submit" value="remove"/>*@
-    @*        </form>*@
   }
   </ul>
+  @if(infoMessage.nonEmpty) {
+    <div class="alert alert-primary" role="alert">
+      @infoMessage
+    </div>
+  }
+  @if(errorMessage.nonEmpty) {
+    <div class="alert alert-danger" role="alert">
+      @errorMessage
+    </div>
+  }
+  </div>
 }

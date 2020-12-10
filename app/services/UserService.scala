@@ -14,6 +14,10 @@ class UserService @Inject() (items: UserList) {
     items.getUserByName(name)
   }
 
+  def getUserById(id: Long): Future[Option[User]] = {
+    items.getUserById(id)
+  }
+
   def addUser(user: User): Future[String] = {
     items.addUser(user)
   }
@@ -24,5 +28,9 @@ class UserService @Inject() (items: UserList) {
 
   def updateUserBalance(name: String, balance: Int): Future[Boolean] = {
     items.updateUserBalance(name, balance)
+  }
+
+  def deleteUser(id: Long): Future[Int] = {
+    items.deleteUser(id)
   }
 }

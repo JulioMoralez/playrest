@@ -1,0 +1,73 @@
+@(users: Seq[User], infoMessage: String)(implicit request: RequestHeader, flash: Flash)
+
+@main("users") {
+
+    <div class="mx-3">
+        <div class="form-row mt-3">
+            <div class="col">
+                <h3>
+                    Список пользователей
+                </h3>
+            </div>
+
+            <div class="col">
+                <form action="@routes.HomeController.index()">
+                    <input type="submit" class="btn btn-primary" value="Назад" />
+                </form>
+            </div>
+        </div>
+        <div class="mt-3">
+            <form action="@api.routes.UserController.newUser()">
+                <input type="submit" class="btn btn-primary" value="Добавить" />
+            </form>
+        </div>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Имя</th>
+                <th scope="col">Баланс</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @for((user, i) <- users.zipWithIndex) {
+            <tr>
+                <th scope="row">@user.id</th>
+                <td>@user.name</td>
+                <td>@user.balance</td>
+                <td>@user.email</td>
+                <td>
+                    <form method="post" action="editUser">
+                        @helper.CSRF.formField
+                    <input type="hidden" name="id" value="@user.id"/>
+                    <input type="hidden" name="name" value="@user.name"/>
+                    <input type="hidden" name="balance" value="@user.balance"/>
+                    <input type="hidden" name="email" value="@user.email"/>
+                    <input type="submit" value="Изменить"/>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="deleteUser">
+                        @helper.CSRF.formField
+                    <input type="hidden" name="id" value="@user.id"/>
+                    <input type="submit" value="Удалить"/>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+
+    @if(infoMessage.nonEmpty) {
+        <div class="alert alert-success" role="alert">
+        @infoMessage
+        </div>
+    }
+    </div>
+}

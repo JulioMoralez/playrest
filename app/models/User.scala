@@ -48,6 +48,10 @@ class UserList @Inject()(
     dbConfig.db.run(userList.filter(_.name === name).result.headOption)
   }
 
+  def getUserById(id: Long): Future[Option[User]] = {
+    dbConfig.db.run(userList.filter(_.id === id).result.headOption)
+  }
+
   def addUser(user: User): Future[String] = {
     dbConfig.db
       .run(userList += user)
@@ -72,6 +76,10 @@ class UserList @Inject()(
     val query = for (user <- userList if user.name === name)
       yield user.balance
     db.run(query.update(balance)).map(_ > 0)
+  }
+
+  def deleteUser(id: Long): Future[Int] = {
+    dbConfig.db.run(userList.filter(_.id === id).delete)
   }
 }
 

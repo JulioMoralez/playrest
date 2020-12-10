@@ -7,6 +7,7 @@ import akka.util.Timeout
 import play.api.libs.Files
 import play.api.mvc._
 
+import java.nio.file.Paths
 import javax.inject._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext}
@@ -17,7 +18,7 @@ class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef,
   extends AbstractController(cc) {
 
   def index(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index(Nil))
+    Ok(views.html.index(Nil, "", ""))
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { implicit request =>
@@ -26,15 +27,21 @@ class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef,
       request.body
       .file("textfile")
       .map { uploadedFile =>
+        val filename    = Paths.get(uploadedFile.filename).getFileName
         val path = uploadedFile.ref.path
 
         val future = paymentReader.ask(Start(path, system)).mapTo[Seq[String]]
         Await.result(future, duration)
-        Ok(future.value.get.getOrElse(Nil).mkString("\n"))
-//        Ok(views.html.index(Nil))
+        val results = future.value.get.getOrElse(Nil)
+        if (results.nonEmpty) {
+          Ok(views.html.index(results, s"Обработано ${results.length} строк, файл $filename", ""))
+        } else {
+          Ok(views.html.index(results, "", s"Ошибка $filename"))
+        }
       }
       .getOrElse {
-        Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")
+        //Redirect(routes.HomeController.index())//.flashing("error" -> "Missing file")
+        Ok(views.html.index(Nil, "", s"Файл не выбран"))
       }
   }
 }

@@ -90,34 +90,40 @@ class PaymentReader @Inject() (userService: UserService) extends Actor with Seri
           val newBalanceTo = users(to) + value
           users(from) = newBalanceFrom
           users(to) = newBalanceTo
-          s"$from $to $value Payment successful. New balance: $from=$newBalanceFrom, $to=$newBalanceTo"
+          s"$from -> $to : $value Успех. Новый баланс: $from=$newBalanceFrom, $to=$newBalanceTo"
         } else {
-          s"$from $to $value Canceling a payment"
+          s"$from -> $to : $value Отмена операции"
         }
       case BadTransaction(transaction) =>
-        s"not ok $transaction"
+        s"[Ошибка] $transaction"
     }
   }
 
   def receive: Receive = {
     case Start(path, system) =>
       println("start")
-      val source = FileIO
-        .fromPath(path)
-        .via(Framing.delimiter(ByteString(System.lineSeparator()), 128, allowTruncation = true)
-          .map(_.utf8String)).filter(_.nonEmpty)
+      try {
+        val source = FileIO
+          .fromPath(path)
+          .via(Framing.delimiter(ByteString(System.lineSeparator()), 128, allowTruncation = true)
+            .map(_.utf8String)).filter(_.nonEmpty)
 
-      implicit val materializer: ActorSystem = system
-      implicit val timeout: Timeout = 5.seconds
+        implicit val materializer: ActorSystem = system
+        implicit val timeout: Timeout = 5.seconds
 
-      val future = source
-        .map(checkTransaction)
-        .map(process)
-        .runWith(Sink.seq[String])
-      Await.result(future, 5.seconds)
-      users.foreach(user => userService.updateUserBalance(user._1, user._2))
-      users.clear()
-      sender() ! future.value.get.getOrElse(Nil)
+        val future = source
+          .map(checkTransaction)
+          .map(process)
+          .runWith(Sink.seq[String])
+        Await.result(future, 5.seconds)
+        users.foreach(user => userService.updateUserBalance(user._1, user._2))
+        users.clear()
+        sender() ! future.value.get.getOrElse(Nil)
+      } catch {
+        case ex: Exception =>
+          users.clear()
+          sender() ! Nil
+      }
   }
 }
 
