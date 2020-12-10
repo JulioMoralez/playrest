@@ -28,15 +28,22 @@ object PaymentReader extends Serializable {
 
   def checkTransaction(transaction: String): Transaction = {
 
-    val paymentRegex = "([A-Za-z0-9]+) (->) ([A-Za-z0-9]+) (:) ([0-9]+)"
+//    val paymentRegex = "([A-Za-z0-9]+) (->) ([A-Za-z0-9]+) (:) ([0-9]+)"
+    val paymentRegex = "[A-Za-z0-9]+ -> [A-Za-z0-9]+ : [0-9]+"
     val regex = paymentRegex.r()
-    println(transaction)
+//    println(transaction)
+    val option: Option[String] = regex.findFirstIn(transaction)
+    option match {
+      case Some(s) => println(s"Some($s)")
+      case None => println("None")
+    }
     transaction match {
       case regex(from, _, to, _, value) =>
         GoodTransaction(from, to, value.toInt)
       case _ =>
         BadTransaction(transaction)
     }
+
 
     // не работает на heroku regex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
