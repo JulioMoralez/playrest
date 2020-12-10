@@ -29,7 +29,7 @@ class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef,
       .file("textfile")
       .map { uploadedFile =>
         println("222222222222222222222222222222222222222")
-        val filename    = Paths.get(uploadedFile.filename).getFileName
+//        val filename    = Paths.get(uploadedFile.filename).getFileName
         println("3333333333333333333333333333333333333333")
         val path = uploadedFile.ref.path
         println("44444444444444444444444444444444444")
@@ -37,9 +37,9 @@ class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef,
         Await.result(future, duration)
         val results = future.value.get.getOrElse(Nil)
         if (results.nonEmpty) {
-          Ok(views.html.index(results, s"Обработано ${results.length} строк, файл $filename", ""))
+          Ok(views.html.index(results, s"Обработано ${results.length} строк, файл filename", ""))
         } else {
-          Ok(views.html.index(results, "", s"Ошибка $filename"))
+          Ok(views.html.index(results, "", s"Ошибка filename"))
         }
       }
       .getOrElse {
