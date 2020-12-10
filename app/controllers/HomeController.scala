@@ -24,12 +24,14 @@ class HomeController @Inject()(@Named("payment-reader") paymentReader: ActorRef,
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { implicit request =>
       val duration = 5.seconds
       implicit val timeout: Timeout = Timeout(duration.length, duration.unit)
+      println("111111111111111111111111111111111")
       request.body
       .file("textfile")
       .map { uploadedFile =>
+        println("222222222222222222222222222222222222222")
         val filename    = Paths.get(uploadedFile.filename).getFileName
         val path = uploadedFile.ref.path
-
+        println("3333333333333333333333333333333333333333")
         val future = paymentReader.ask(Start(path, system)).mapTo[Seq[String]]
         Await.result(future, duration)
         val results = future.value.get.getOrElse(Nil)
