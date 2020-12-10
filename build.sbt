@@ -1,7 +1,7 @@
 val postgresqlVersion = "42.2.18"
 
-name := """play-scala-rest-api-example"""
-organization := "com.example"
+name := """play-payment"""
+organization := "ru.juliomoralez"
 
 version := "1.0-SNAPSHOT"
 
