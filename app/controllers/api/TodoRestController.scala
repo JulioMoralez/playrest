@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class TodoController @Inject()(
+class TodoRestController @Inject()(
     cc: ControllerComponents,
     todoService: TodoService
 ) extends AbstractController(cc) {
@@ -39,7 +39,7 @@ class TodoController @Inject()(
           },
           data => {
             val newTodoItem = Todo(0, data.name, data.isComplete)
-            todoService.addItem(newTodoItem).map( _ => Redirect(routes.TodoController.getAll))
+            todoService.addItem(newTodoItem).map( _ => Redirect(routes.TodoRestController.getAll))
           })
       }
     
@@ -52,13 +52,13 @@ class TodoController @Inject()(
           },
           data => {
             val todoItem = Todo(id, data.name, data.isComplete)
-            todoService.updateItem(todoItem).map( _ => Redirect(routes.TodoController.getAll))
+            todoService.updateItem(todoItem).map( _ => Redirect(routes.TodoRestController.getAll))
           })
       }
     
       def delete(id: Long): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
         todoService.deleteItem(id) map { _ =>
-          Redirect(routes.TodoController.getAll)
+          Redirect(routes.TodoRestController.getAll)
         }
       }
 }

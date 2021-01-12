@@ -7,7 +7,6 @@ import akka.util.Timeout
 import play.api.libs.Files
 import play.api.mvc._
 
-import java.nio.file.Paths
 import javax.inject._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext}

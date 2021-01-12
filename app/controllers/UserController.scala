@@ -1,24 +1,17 @@
-package controllers.api
+package controllers
 
 import models.User
-import play.api.libs.json._
-import play.api.mvc._
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request}
 import services.UserService
 
-import javax.inject._
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
+@Singleton
 class UserController @Inject()(cc: ControllerComponents, userService: UserService) extends AbstractController(cc) {
-
-  implicit val todoFormat: OFormat[User] = Json.format[User]
-
-  def getAll: Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
-    userService.getAll.map(users =>
-      Ok(Json.toJson(users)))
-  }
 
   def showUsersPost: Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     val postVals = request.body.asFormUrlEncoded
@@ -28,15 +21,9 @@ class UserController @Inject()(cc: ControllerComponents, userService: UserServic
         Ok(views.html.users(users, message))
       )
     }.getOrElse(userService.getAll.map(users =>
-        Ok(views.html.users(users, ""))
+      Ok(views.html.users(users, ""))
     ))
   }
-
-//  def showUsersGet(message: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
-//    userService.getAll.map(users =>
-//      Ok(views.html.users(users, message))
-//    )
-//  }
 
   def deleteUser(): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
     val postVals = request.body.asFormUrlEncoded
@@ -108,6 +95,6 @@ class UserController @Inject()(cc: ControllerComponents, userService: UserServic
   }
 
   def newUser(): Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-      Ok(views.html.userform(User(-1, "", 0, ""), ""))
+    Ok(views.html.userform(User(-1, "", 0, ""), ""))
   }
 }

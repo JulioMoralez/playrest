@@ -1,6 +1,8 @@
 
 GET     /                           controllers.HomeController.index
 
+GET     /ip                         controllers.WsController.getIp
+
 + nocsrf
 POST    /upload                     controllers.HomeController.upload
 
@@ -8,19 +10,26 @@ POST    /upload                     controllers.HomeController.upload
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 
-GET     /api/todos                  controllers.api.TodoController.getAll
-GET     /api/todos/:id                  controllers.api.TodoController.getById(id: Long)
-POST    /api/todos/add              controllers.api.TodoController.add
-PUT     /api/todos/update/:id           controllers.api.TodoController.update(id: Long)
-DELETE /api/todos/delete/:id         controllers.api.TodoController.delete(id: Long)
+GET     /api/todos                  controllers.api.TodoRestController.getAll
+GET     /api/todos/:id              controllers.api.TodoRestController.getById(id: Long)
+POST    /api/todos/add              controllers.api.TodoRestController.add
+PUT     /api/todos/update/:id       controllers.api.TodoRestController.update(id: Long)
+DELETE /api/todos/delete/:id        controllers.api.TodoRestController.delete(id: Long)
 
-GET     /api/users                  controllers.api.UserController.getAll
+GET     /api/users                  controllers.api.UserRestController.getAll
+GET     /api/users/:id              controllers.api.UserRestController.getById(id: Long)
++ nocsrf
+POST    /api/users/add              controllers.api.UserRestController.add
++ nocsrf
+PUT     /api/users/update/:id       controllers.api.UserRestController.update(id: Long)
++ nocsrf
+DELETE  /api/users/delete/:id       controllers.api.UserRestController.delete(id: Long)
 
 
 
 
-POST     /users                      controllers.api.UserController.showUsersPost
-POST    /deleteUser                 controllers.api.UserController.deleteUser
-POST    /editUser                   controllers.api.UserController.editUser
-POST    /updateUser                 controllers.api.UserController.updateUser
-GET    /newUser                    controllers.api.UserController.newUser
+POST     /users                      controllers.UserController.showUsersPost
+POST    /deleteUser                  controllers.UserController.deleteUser
+POST    /editUser                    controllers.UserController.editUser
+POST    /updateUser                  controllers.UserController.updateUser
+GET    /newUser                      controllers.UserController.newUser
